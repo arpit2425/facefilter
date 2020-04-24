@@ -6,6 +6,7 @@ import Navigation from "./components/Navigation/Navigation";
 import Logo from "./components/Logo/Logo";
 import ImageLinkForm from "./components/imageLinkForm/imageLinkForm";
 import Rank from "./components/Rank/Rank";
+import Signin from "./components/Signin/Signin";
 import Clarifai from "clarifai";
 const app = new Clarifai.App({
   apiKey: "0c444fa12958427a9996fa48b7cf6c4f",
@@ -247,38 +248,60 @@ class App extends React.Component {
     this.state = {
       input: "",
       imageURL: "",
+      box: {},
+      route: "signin",
     };
   }
+  calculateFaceLocation = (data) => {
+    const clarifaiData =
+      data.outputs[0].data.regions[0].region_info.bounding_box;
+    const image = document.getElementById("imageResult");
+    const width = Number(image.width);
+    const height = Number(image.height);
+    return {
+      leftCol: clarifaiData.left_col * width,
+      topRow: clarifaiData.top_row * height,
+      rightCol: width - clarifaiData.right_col * width,
+      bottomRow: height - clarifaiData.bottom_row * height,
+    };
+  };
+  onroutechange = (route) => {
+    this.setState({ route });
+  };
+  displayFace = (box) => {
+    this.setState({ box });
+  };
   onChangeHandler = (event) => {
     this.setState({ input: event.target.value });
   };
   onSubmitHandler = () => {
     this.setState({ imageURL: this.state.input });
-    app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input).then(
-      function (response) {
-        // do something with response
-        console.log(
-          response.outputs[0].data.regions[0].region_info.bounding_box
-        );
-      },
-      function (err) {
-        // there was an error
-        console.log(err);
-      }
-    );
+    app.models
+      .predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
+      // .predict(Clarifai.CELEBRITY_MODEL, this.state.input)
+      // .then((res) => console.log(res))
+      .then((res) => this.displayFace(this.calculateFaceLocation(res)))
+      .catch((err) => console.log(err));
   };
   render() {
     return (
       <div className="App">
         <Particles className="particles" params={paramsoption} />
-        <Navigation />
+
+        <Navigation onroutechange={this.onroutechange} />
         <Logo />
-        <Rank />
-        <ImageLinkForm
-          onChangeHandler={this.onChangeHandler}
-          onSubmitHandler={this.onSubmitHandler}
-        />
-        <FaceDetection url={this.state.imageURL} />
+        {this.state.route === "signin" ? (
+          <Signin onroutechange={this.onroutechange} />
+        ) : (
+          <div>
+            <Rank />
+            <ImageLinkForm
+              onChangeHandler={this.onChangeHandler}
+              onSubmitHandler={this.onSubmitHandler}
+            />
+            <FaceDetection box={this.state.box} url={this.state.imageURL} />
+          </div>
+        )}
       </div>
     );
   }
