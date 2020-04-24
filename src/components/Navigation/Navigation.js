@@ -1,11 +1,32 @@
 import React from "react";
 
-function Navigation({ onroutechange }) {
-  return (
-    <div>
+function Navigation({ onroutechange, isSignedin }) {
+  if (isSignedin) {
+    return (
+      <div>
+        <nav
+          style={{
+            display: "inline-block",
+            justifyContent: "flex-end",
+            padding: "0px",
+            float: "right",
+          }}
+        >
+          <p
+            onClick={() => onroutechange("signin")}
+            className="f3 link dim black underline pa1 pointer"
+            style={{ margin: "5px" }}
+          >
+            Sign out
+          </p>
+        </nav>
+      </div>
+    );
+  } else {
+    return (
       <nav
         style={{
-          display: "inline-block",
+          display: "flex",
           justifyContent: "flex-end",
           padding: "0px",
           float: "right",
@@ -16,11 +37,18 @@ function Navigation({ onroutechange }) {
           className="f3 link dim black underline pa1 pointer"
           style={{ margin: "5px" }}
         >
-          Sign out
+          Sign In
+        </p>
+        <p
+          onClick={() => onroutechange("register")}
+          className="f3 link dim black underline pa1 pointer"
+          style={{ margin: "5px" }}
+        >
+          Register
         </p>
       </nav>
-    </div>
-  );
+    );
+  }
 }
 
 export default Navigation;

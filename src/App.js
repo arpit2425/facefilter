@@ -7,6 +7,7 @@ import Logo from "./components/Logo/Logo";
 import ImageLinkForm from "./components/imageLinkForm/imageLinkForm";
 import Rank from "./components/Rank/Rank";
 import Signin from "./components/Signin/Signin";
+import Register from "./components/Register/Register";
 import Clarifai from "clarifai";
 const app = new Clarifai.App({
   apiKey: "0c444fa12958427a9996fa48b7cf6c4f",
@@ -250,6 +251,7 @@ class App extends React.Component {
       imageURL: "",
       box: {},
       route: "signin",
+      isSignedin: false,
     };
   }
   calculateFaceLocation = (data) => {
@@ -266,6 +268,12 @@ class App extends React.Component {
     };
   };
   onroutechange = (route) => {
+    if (route === "home") {
+      this.setState({ isSignedin: true });
+    }
+    if (route === "signin") {
+      this.setState({ isSignedin: false });
+    }
     this.setState({ route });
   };
   displayFace = (box) => {
@@ -288,11 +296,12 @@ class App extends React.Component {
       <div className="App">
         <Particles className="particles" params={paramsoption} />
 
-        <Navigation onroutechange={this.onroutechange} />
+        <Navigation
+          onroutechange={this.onroutechange}
+          isSignedin={this.state.isSignedin}
+        />
         <Logo />
-        {this.state.route === "signin" ? (
-          <Signin onroutechange={this.onroutechange} />
-        ) : (
+        {this.state.route === "home" ? (
           <div>
             <Rank />
             <ImageLinkForm
@@ -301,6 +310,10 @@ class App extends React.Component {
             />
             <FaceDetection box={this.state.box} url={this.state.imageURL} />
           </div>
+        ) : this.state.route === "signin" ? (
+          <Signin onroutechange={this.onroutechange} />
+        ) : (
+          <Register onroutechange={this.onroutechange} />
         )}
       </div>
     );
