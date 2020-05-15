@@ -1,9 +1,18 @@
 const express = require("express");
 var bcrypt = require("bcrypt");
 const app = express();
+const mongoose = require("mongoose");
+require("dotenv").config({ path: `${__dirname}/config.env` });
 const cors = require("cors");
 app.use(express.json());
 app.use(cors());
+mongoose
+  .connect(process.env.DATABASE, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then((res) => console.log("Db connected"))
+  .catch((err) => console.log(err));
 app.get("/", (req, res) => {});
 app.post("/signin", (req, res) => {
   console.log(req.body);
