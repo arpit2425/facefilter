@@ -49,7 +49,7 @@ app.post("/register", async (req, res) => {
   res.status(201).json({ user });
 });
 app.get("/profile/:id", (req, res) => {});
-app.patch("/image/:id", async (req, res) => {
+app.get("/image/:id", async (req, res) => {
   let user = await User.findById(req.params.id);
   let entry = user.entries;
   entry++;

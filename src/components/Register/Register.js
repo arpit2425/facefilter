@@ -27,13 +27,11 @@ class Register extends React.Component {
         password: this.state.password,
       })
       .then((res) => {
-        // console.log(res.data);
-        this.props.onLoad(res.data);
+        console.log(res.data.user);
+        this.props.onLoad(res.data.user);
         this.props.onroutechange("home");
       })
       .catch((err) => console.log(err));
-
-    console.log(this.state);
   };
   render() {
     const { onroutechange } = this.props;

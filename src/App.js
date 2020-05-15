@@ -1,5 +1,6 @@
 import React from "react";
 import Particles from "react-particles-js";
+import axios from "axios";
 import "./App.css";
 import FaceDetection from "./components/FaceDetection/FaceDetection";
 import Navigation from "./components/Navigation/Navigation";
@@ -255,6 +256,8 @@ class App extends React.Component {
       user: {
         email: "",
         name: "",
+        id: "",
+        entries: "",
       },
     };
   }
@@ -263,9 +266,10 @@ class App extends React.Component {
       user: {
         email: data.email,
         name: data.name,
+        id: data._id,
+        entries: data.entries,
       },
     });
-    console.log(this.state.user);
   };
   calculateFaceLocation = (data) => {
     const clarifaiData =
@@ -301,7 +305,17 @@ class App extends React.Component {
       .predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
       // .predict(Clarifai.CELEBRITY_MODEL, this.state.input)
       // .then((res) => console.log(res))
-      .then((res) => this.displayFace(this.calculateFaceLocation(res)))
+      .then((res) => {
+        axios
+          .get(`http://localhost:5000/image/${this.state.user.id}`)
+          .then((res) => {
+            this.setState({ user: { entries: res.data.entries } });
+            console.log(this.state.user);
+          })
+          .catch((err) => console.log(err));
+
+        this.displayFace(this.calculateFaceLocation(res));
+      })
       .catch((err) => console.log(err));
   };
   render() {

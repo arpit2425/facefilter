@@ -19,12 +19,14 @@ class Signin extends React.Component {
     axios
       .post("http://localhost:5000/signin", {
         email: this.state.loginEmail,
+
         password: this.state.loginPassword,
       })
-      .then(this.props.onroutechange("home"))
+      .then((res) => {
+        this.props.onLoad(res.data.user);
+        this.props.onroutechange("home");
+      })
       .catch((err) => console.log(err));
-
-    console.log(this.state);
   };
   render() {
     const { onroutechange } = this.props;
