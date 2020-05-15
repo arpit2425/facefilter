@@ -252,8 +252,21 @@ class App extends React.Component {
       box: {},
       route: "signin",
       isSignedin: false,
+      user: {
+        email: "",
+        name: "",
+      },
     };
   }
+  onLoad = (data) => {
+    this.setState({
+      user: {
+        email: data.email,
+        name: data.name,
+      },
+    });
+    console.log(this.state.user);
+  };
   calculateFaceLocation = (data) => {
     const clarifaiData =
       data.outputs[0].data.regions[0].region_info.bounding_box;
@@ -311,9 +324,9 @@ class App extends React.Component {
             <FaceDetection box={this.state.box} url={this.state.imageURL} />
           </div>
         ) : this.state.route === "signin" ? (
-          <Signin onroutechange={this.onroutechange} />
+          <Signin onLoad={this.onLoad} onroutechange={this.onroutechange} />
         ) : (
-          <Register onroutechange={this.onroutechange} />
+          <Register onLoad={this.onLoad} onroutechange={this.onroutechange} />
         )}
       </div>
     );
