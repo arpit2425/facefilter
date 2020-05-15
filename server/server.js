@@ -1,8 +1,10 @@
 const express = require("express");
+
 var bcrypt = require("bcrypt");
 const app = express();
 const mongoose = require("mongoose");
 require("dotenv").config({ path: `${__dirname}/config.env` });
+const User = require("./Model/User");
 const cors = require("cors");
 app.use(express.json());
 app.use(cors());
@@ -18,12 +20,19 @@ app.post("/signin", (req, res) => {
   console.log(req.body);
   res.send("signin");
 });
-app.post("/register", (req, res) => {
-  // bcrypt.hash(req.body.password, 12).then(function (hash) {
-  //   // Store hash in your password DB.
-  //   console.log(hash);
-  //   res.send(hash);
-  // });
+app.post("/register", async (req, res) => {
+  const { email, name, password } = req.body;
+  let hashedpassword;
+  if (!email || !name || !password) {
+    return res.status(401).json({ message: "Fields required" });
+  }
+
+  const user = await User.create({
+    email,
+    name,
+    password,
+  });
+  res.status(201).json({ user });
   // bcrypt
   //   .compare(
   //     req.body.password,
@@ -32,7 +41,6 @@ app.post("/register", (req, res) => {
   //   .then(function (result) {
   //     res.send(result);
   //   });
-  res.send(req.body);
 });
 app.get("/profile/:id", (req, res) => {});
 app.post("/image", (req, res) => {});
