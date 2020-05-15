@@ -16,13 +16,27 @@ mongoose
   .then((res) => console.log("Db connected"))
   .catch((err) => console.log(err));
 app.get("/", (req, res) => {});
-app.post("/signin", (req, res) => {
-  console.log(req.body);
-  res.send("signin");
+app.post("/signin", async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(401).json({ message: "Fields required" });
+  }
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(401).json({ Error: "Incorrect email or password" });
+  }
+  try {
+    const match = await user.comparePasswords(password, user.password);
+    if (match) {
+      return res.status(200).json({ user });
+    }
+  } catch (err) {
+    return res.status(401).json({ Error: "Incorrect email or password" });
+  }
 });
 app.post("/register", async (req, res) => {
   const { email, name, password } = req.body;
-  let hashedpassword;
+
   if (!email || !name || !password) {
     return res.status(401).json({ message: "Fields required" });
   }
@@ -33,17 +47,20 @@ app.post("/register", async (req, res) => {
     password,
   });
   res.status(201).json({ user });
-  // bcrypt
-  //   .compare(
-  //     req.body.password,
-  //     "$2b$12$.9X4AIDlCxUsZOskCX0jIOZuOtfQ6qHf16SyHMM8fc2xUgtNnKBn6"
-  //   )
-  //   .then(function (result) {
-  //     res.send(result);
-  //   });
 });
 app.get("/profile/:id", (req, res) => {});
-app.post("/image", (req, res) => {});
+app.patch("/image/:id", async (req, res) => {
+  let user = await User.findById(req.params.id);
+  let entry = user.entries;
+  entry++;
+  const updatedUser = await User.findByIdAndUpdate(
+    { _id: req.params.id },
+    {
+      entries: entry,
+    }
+  );
+  res.send(updatedUser);
+});
 app.listen(5000, () => {
   console.log("Server running ...");
 });
