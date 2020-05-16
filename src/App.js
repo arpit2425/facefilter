@@ -243,23 +243,24 @@ const paramsoption = {
   pauseOnBlur: true,
   background: {},
 };
+const initalState = {
+  input: "",
+  imageURL: "",
+  box: {},
+  route: "signin",
+  isSignedin: false,
+  user: {
+    email: "",
+    name: "",
+    id: "",
+    entries: "",
+  },
+};
 class App extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      input: "",
-      imageURL: "",
-      box: {},
-      route: "signin",
-      isSignedin: false,
-      user: {
-        email: "",
-        name: "",
-        id: "",
-        entries: "",
-      },
-    };
+    this.state = initalState;
   }
   onLoad = (data) => {
     this.setState({
@@ -285,13 +286,13 @@ class App extends React.Component {
     };
   };
   onroutechange = (route) => {
-    if (route === "home") {
+    if (route === "signin") {
+      this.setState(initalState);
+    } else if (route === "home") {
       this.setState({ isSignedin: true });
     }
-    if (route === "signin") {
-      this.setState({ isSignedin: false });
-    }
-    this.setState({ route });
+
+    this.setState({ route: route });
   };
   displayFace = (box) => {
     this.setState({ box });
@@ -309,7 +310,10 @@ class App extends React.Component {
         axios
           .get(`http://localhost:5000/image/${this.state.user.id}`)
           .then((res) => {
-            this.setState({ user: { entries: res.data.entries } });
+            this.setState(
+              Object.assign(this.state.user, { entries: res.data.entries })
+            );
+
             console.log(this.state.user);
           })
           .catch((err) => console.log(err));
@@ -330,7 +334,7 @@ class App extends React.Component {
         <Logo />
         {this.state.route === "home" ? (
           <div>
-            <Rank />
+            <Rank detail={this.state.user} />
             <ImageLinkForm
               onChangeHandler={this.onChangeHandler}
               onSubmitHandler={this.onSubmitHandler}
